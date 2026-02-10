@@ -1,0 +1,61 @@
+:root {
+  --bg-page: #1a1a1a;
+  --bg-card: #252525;
+  --bg-elevated: #2d2d2d;
+  --border: #3d3d3d;
+  --text: #e8e8e8;
+  --text-muted: #a0a0a0;
+  --status-can-work: #22c55e;
+  --status-normal: #0ea5e9;
+  --status-better-rest: #f59e0b;
+  --status-urgent-rest: #ef4444;
+  --accent: #3b82f6;
+  --radius: 8px;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  /* Прокручиваемая зона таблицы (недели) — чуть выделена */
+  --scroll-zone-bg: #222;
+  /* Чередование фона по месяцам (4 недели = 1 месяц) */
+  --scroll-month-1: rgba(45, 55, 65, 0.35);
+  --scroll-month-2: rgba(50, 45, 60, 0.35);
+  --scroll-month-3: rgba(45, 55, 65, 0.35);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-page);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+table {
+  border-collapse: collapse;
+}
