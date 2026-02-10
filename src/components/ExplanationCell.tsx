@@ -1,3 +1,4 @@
+import { Calendar, TrendingUp, Flame } from 'lucide-react'
 import type { OvertimeMetrics } from '../types/overtime'
 
 interface ExplanationCellProps {
@@ -12,28 +13,44 @@ const profileTagStyle: Record<string, { bg: string; color: string }> = {
   none: { bg: 'transparent', color: 'var(--text-muted)' },
 }
 
+const iconSize = 12
+
 export function ExplanationCell({ metrics }: ExplanationCellProps) {
   const style = profileTagStyle[metrics.profile] ?? profileTagStyle.none
   return (
-    <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+    <div
+      style={{
+        fontSize: '0.75rem',
+        color: 'var(--text-muted)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: '0.5rem 0.75rem',
+      }}
+    >
       <span
         style={{
-          display: 'inline-block',
-          marginRight: '0.5rem',
           padding: '0.125rem 0.375rem',
           borderRadius: 4,
           backgroundColor: style.bg,
           color: style.color,
-          fontSize: '0.75rem',
+          fontSize: '0.7rem',
         }}
       >
         {metrics.profileLabel}
       </span>
-      <div>последний раз: {metrics.lastWorkedLabel ?? 'нет'}</div>
-      <div>
-        пик: {metrics.peakLabel} ({metrics.peakValue}ч)
-      </div>
-      <div>Фев (свежие): {metrics.febTotal}ч</div>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        <Calendar size={iconSize} aria-hidden />
+        {metrics.lastWorkedLabel ?? '—'}
+      </span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        <TrendingUp size={iconSize} aria-hidden />
+        {metrics.peakLabel} ({metrics.peakValue}ч)
+      </span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+        <Flame size={iconSize} aria-hidden />
+        {metrics.febTotal}ч
+      </span>
     </div>
   )
 }

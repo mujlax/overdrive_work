@@ -16,10 +16,9 @@ const defaultFilters: FilterState = {
 }
 
 const statusOptions = [
-  { value: 'can_work', label: 'Можно работать' },
+  { value: 'overload_rest', label: 'Срочно отдыхать' },
   { value: 'normal', label: 'Нормальная нагрузка' },
-  { value: 'better_rest', label: 'Лучше отдыхать' },
-  { value: 'urgent_rest', label: 'Срочно отдыхать' },
+  { value: 'underload_work', label: 'Срочно работать' },
 ]
 
 export default function App() {
@@ -58,7 +57,7 @@ export default function App() {
           onSelect={setSelectedId}
         />
       ) : (
-        <ChartView specialists={filtered} selectedId={selectedId} />
+        <ChartView specialists={filtered} />
       )}
       <footer
         style={{
@@ -75,8 +74,7 @@ export default function App() {
         }}
       >
         <span>
-          Подсказка: сортировка «По приоритету отдыха» учитывает статус + свежесть (кто работал
-          последним) как тай-брейкер.
+          Статусы: относительно медианы по текущей выборке (норма ±20%). Сортировка: сначала перегруженные, затем недогруженные.
         </span>
         <span>Weekly UI v1</span>
       </footer>

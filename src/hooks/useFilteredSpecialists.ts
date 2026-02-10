@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { SpecialistWithMetrics } from '../types/overtime'
 import type { FilterState } from '../components/FiltersBar'
+import { applyCohortStatus } from '../lib/overtimeLogic'
 
 export function useFilteredSpecialists(
   specialists: SpecialistWithMetrics[],
@@ -12,7 +13,6 @@ export function useFilteredSpecialists(
     let list = specialists.filter((s) => {
       if (department && s.department !== department) return false
       if (skill && s.skill !== skill) return false
-      if (status && s.metrics.status.kind !== status) return false
       if (q) {
         const match =
           s.name.toLowerCase().includes(q) ||
@@ -22,6 +22,8 @@ export function useFilteredSpecialists(
       }
       return true
     })
+    applyCohortStatus(list)
+    if (status) list = list.filter((s) => s.metrics.status.kind === status)
     list = [...list].sort((a, b) => b.metrics.priorityScore - a.metrics.priorityScore)
     return list
   }, [specialists, filters])

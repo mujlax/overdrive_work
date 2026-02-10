@@ -37,11 +37,9 @@ const STICKY_WIDTH_2 = 180
 const W_TOTAL = 70
 const W_STATUS = 160
 const W_EXPLANATION = 200
-const W_PRIORITY = 100
-const STICKY_RIGHT_4 = 0
-const STICKY_RIGHT_3 = W_PRIORITY
-const STICKY_RIGHT_2 = W_PRIORITY + W_EXPLANATION
-const STICKY_RIGHT_1 = W_PRIORITY + W_EXPLANATION + W_STATUS
+const STICKY_RIGHT_3 = 0
+const STICKY_RIGHT_2 = W_EXPLANATION
+const STICKY_RIGHT_1 = W_EXPLANATION + W_STATUS
 
 const stickyRightTh = (right: number, _label: string) => ({
   ...thStyle,
@@ -50,7 +48,7 @@ const stickyRightTh = (right: number, _label: string) => ({
   zIndex: 2,
   background: 'var(--bg-card)',
   boxShadow: '-2px 0 4px rgba(0,0,0,0.2)',
-  minWidth: right === STICKY_RIGHT_4 ? W_PRIORITY : right === STICKY_RIGHT_3 ? W_EXPLANATION : right === STICKY_RIGHT_2 ? W_STATUS : W_TOTAL,
+  minWidth: right === STICKY_RIGHT_3 ? W_EXPLANATION : right === STICKY_RIGHT_2 ? W_STATUS : W_TOTAL,
 })
 
 const stickyRightTd = (right: number, width: number, bg: string) => ({
@@ -118,7 +116,6 @@ export function SpecialistsTable({ specialists, selectedId, onSelect }: Speciali
               <th style={stickyRightTh(STICKY_RIGHT_1, 'Всего')}>Всего</th>
               <th style={stickyRightTh(STICKY_RIGHT_2, 'Статус')}>Статус</th>
               <th style={stickyRightTh(STICKY_RIGHT_3, 'Объяснение')}>Объяснение</th>
-              <th style={stickyRightTh(STICKY_RIGHT_4, 'PriorityScore')}>PriorityScore</th>
             </tr>
             <tr>
               <th
@@ -166,7 +163,6 @@ export function SpecialistsTable({ specialists, selectedId, onSelect }: Speciali
               <th style={stickyRightTh(STICKY_RIGHT_1, '')} />
               <th style={stickyRightTh(STICKY_RIGHT_2, '')} />
               <th style={stickyRightTh(STICKY_RIGHT_3, '')} />
-              <th style={stickyRightTh(STICKY_RIGHT_4, '')} />
             </tr>
           </thead>
           <tbody>
@@ -224,9 +220,6 @@ export function SpecialistsTable({ specialists, selectedId, onSelect }: Speciali
                 </td>
                 <td style={stickyRightTd(STICKY_RIGHT_3, W_EXPLANATION, rowBg(s))}>
                   <ExplanationCell metrics={s.metrics} />
-                </td>
-                <td style={stickyRightTd(STICKY_RIGHT_4, W_PRIORITY, rowBg(s))}>
-                  {s.metrics.priorityScore}
                 </td>
               </tr>
             ))}

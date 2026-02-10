@@ -34,11 +34,14 @@ export const DEFAULT_RULE_PARAMS: RuleParams = {
   CHRONIC_HALVES: 6,
 }
 
+/** Три зоны относительно медианы по когорте */
 export type StatusKind =
-  | 'can_work'       // можно работать
-  | 'normal'         // нормальная нагрузка
-  | 'better_rest'    // лучше отдыхать
-  | 'urgent_rest'    // срочно отдыхать
+  | 'overload_rest'   // срочно отдыхать (перегруз)
+  | 'normal'          // нормальная нагрузка
+  | 'underload_work'  // срочно работать (недогруз)
+
+/** Зона «норма»: total в [median * (1 - BAND), median * (1 + BAND)] */
+export const MEDIAN_BAND_PERCENT = 0.2
 
 export type ProfileKind =
   | 'single_peak'    // разовый пик

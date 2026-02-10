@@ -1,4 +1,4 @@
-import { Zap, Activity, Bed, AlertCircle } from 'lucide-react'
+import { AlertCircle, Activity, Briefcase } from 'lucide-react'
 import type { StatusKind } from '../types/overtime'
 
 interface StatusBadgeProps {
@@ -8,12 +8,11 @@ interface StatusBadgeProps {
 
 const config: Record<
   StatusKind,
-  { icon: typeof Zap; bg: string; color: string }
+  { icon: typeof Activity; bg: string; color: string }
 > = {
-  can_work: { icon: Zap, bg: 'rgba(34, 197, 94, 0.15)', color: 'var(--status-can-work)' },
+  overload_rest: { icon: AlertCircle, bg: 'rgba(239, 68, 68, 0.15)', color: 'var(--status-urgent-rest)' },
   normal: { icon: Activity, bg: 'rgba(14, 165, 233, 0.15)', color: 'var(--status-normal)' },
-  better_rest: { icon: Bed, bg: 'rgba(245, 158, 11, 0.15)', color: 'var(--status-better-rest)' },
-  urgent_rest: { icon: AlertCircle, bg: 'rgba(239, 68, 68, 0.15)', color: 'var(--status-urgent-rest)' },
+  underload_work: { icon: Briefcase, bg: 'rgba(34, 197, 94, 0.15)', color: 'var(--status-can-work)' },
 }
 
 export function StatusBadge({ kind, label }: StatusBadgeProps) {

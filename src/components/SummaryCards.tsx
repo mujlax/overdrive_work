@@ -1,4 +1,4 @@
-import { Clock, Users, AlertCircle, Bed } from 'lucide-react'
+import { Clock, Users, AlertCircle, Briefcase } from 'lucide-react'
 import type { SpecialistWithMetrics } from '../types/overtime'
 
 interface SummaryCardsProps {
@@ -8,14 +8,14 @@ interface SummaryCardsProps {
 export function SummaryCards({ specialists }: SummaryCardsProps) {
   const totalHours = specialists.reduce((acc, s) => acc + s.metrics.total, 0)
   const withOvertime = specialists.filter((s) => s.metrics.total > 0).length
-  const urgentRest = specialists.filter((s) => s.metrics.status.kind === 'urgent_rest').length
-  const betterRest = specialists.filter((s) => s.metrics.status.kind === 'better_rest').length
+  const overloadRest = specialists.filter((s) => s.metrics.status.kind === 'overload_rest').length
+  const underloadWork = specialists.filter((s) => s.metrics.status.kind === 'underload_work').length
 
   const cards = [
     { label: 'Всего переработок', value: `${totalHours} ч`, icon: Clock },
     { label: 'С переработками', value: String(withOvertime), icon: Users },
-    { label: 'Срочно отдыхать', value: String(urgentRest), icon: AlertCircle },
-    { label: 'Лучше отдыхать', value: String(betterRest), icon: Bed },
+    { label: 'Срочно отдыхать', value: String(overloadRest), icon: AlertCircle },
+    { label: 'Срочно работать', value: String(underloadWork), icon: Briefcase },
   ]
 
   return (

@@ -2,8 +2,11 @@ import type { PeriodHours, RuleParams, StatusResult, OvertimeMetrics } from '../
 import {
   PERIOD_LABELS,
   DEFAULT_RULE_PARAMS,
+  MEDIAN_BAND_PERCENT,
   type ProfileKind,
+  type StatusKind,
 } from '../types/overtime'
+import type { SpecialistWithMetrics } from '../types/overtime'
 
 function sum(arr: number[]): number {
   return arr.reduce((a, b) => a + b, 0)
@@ -64,43 +67,45 @@ function getProfile(
   return { kind: 'uniform', label: 'равномерно' }
 }
 
-/** Статус по приоритету правил 0–5 */
-function getStatus(
-  total: number,
-  febTotal: number,
-  activeHalfCount: number,
-  activeMonthCount: number,
-  params: RuleParams
-): StatusResult {
-  const { LOW_WORK, MID_WORK, FRESH_SHARE, CHRONIC_HALVES } = params
+function median(sorted: number[]): number {
+  if (sorted.length === 0) return 0
+  const m = Math.floor(sorted.length / 2)
+  if (sorted.length % 2 === 1) return sorted[m]
+  return (sorted[m - 1] + sorted[m]) / 2
+}
 
-  if (total === 0) return { kind: 'can_work', label: 'Можно работать' }
-  if (total < LOW_WORK) return { kind: 'can_work', label: 'Можно работать' }
-  if (LOW_WORK <= total && total < MID_WORK) return { kind: 'normal', label: 'Нормальная нагрузка' }
-
-  const isChronic = activeMonthCount === 3 && activeHalfCount >= CHRONIC_HALVES
-  if (isChronic) return { kind: 'urgent_rest', label: 'Срочно отдыхать' }
-  if (total > 0 && febTotal >= FRESH_SHARE * total) return { kind: 'better_rest', label: 'Лучше отдыхать' }
-
+function getRelativeStatus(total: number, medianValue: number, bandPercent: number): StatusResult {
+  if (medianValue === 0) {
+    if (total === 0) return { kind: 'normal', label: 'Нормальная нагрузка' }
+    return { kind: 'overload_rest', label: 'Срочно отдыхать' }
+  }
+  const low = medianValue * (1 - bandPercent)
+  const high = medianValue * (1 + bandPercent)
+  if (total > high) return { kind: 'overload_rest', label: 'Срочно отдыхать' }
+  if (total < low) return { kind: 'underload_work', label: 'Срочно работать' }
   return { kind: 'normal', label: 'Нормальная нагрузка' }
 }
 
-/** PriorityScore: 1000000*Chronic + 10000*LastIndex + 10*FebTotal + 1*Total. LastIndex 1..12 или 0 если не работал. */
-function getPriorityScore(
-  total: number,
-  febTotal: number,
-  lastWorkedIndex: number | null,
-  activeHalfCount: number,
-  activeMonthCount: number,
-  chronicHalves: number
-): number {
-  const chronicFlag = activeMonthCount === 3 && activeHalfCount >= chronicHalves ? 1 : 0
-  const lastIndex = lastWorkedIndex !== null ? lastWorkedIndex + 1 : 0
-  return 1000000 * chronicFlag + 10000 * lastIndex + 10 * febTotal + 1 * total
+/**
+ * Обновляет у каждого специалиста metrics.status и metrics.priorityScore
+ * по медиане часов по когорте (отфильтрованному списку).
+ */
+export function applyCohortStatus(
+  specialists: SpecialistWithMetrics[],
+  bandPercent: number = MEDIAN_BAND_PERCENT
+): void {
+  if (specialists.length === 0) return
+  const totals = specialists.map((s) => s.metrics.total).slice().sort((a, b) => a - b)
+  const medianValue = median(totals)
+  for (const s of specialists) {
+    s.metrics.status = getRelativeStatus(s.metrics.total, medianValue, bandPercent)
+    s.metrics.priorityScore = s.metrics.total - medianValue
+  }
 }
 
 /**
- * Полный расчёт метрик по вектору периодов P.
+ * Метрики по вектору периодов P (без учёта когорты).
+ * status и priorityScore — заглушки; их задаёт applyCohortStatus по отфильтрованному списку.
  */
 export function getMetrics(P: PeriodHours, params: RuleParams = DEFAULT_RULE_PARAMS): OvertimeMetrics {
   const agg = getAggregations(P)
@@ -113,22 +118,6 @@ export function getMetrics(P: PeriodHours, params: RuleParams = DEFAULT_RULE_PAR
     agg.activeMonthCount,
     params.FRESH_SHARE
   )
-  const status = getStatus(
-    agg.total,
-    agg.febTotal,
-    agg.activeHalfCount,
-    agg.activeMonthCount,
-    params
-  )
-  const priorityScore = getPriorityScore(
-    agg.total,
-    agg.febTotal,
-    last?.index ?? null,
-    agg.activeHalfCount,
-    agg.activeMonthCount,
-    params.CHRONIC_HALVES
-  )
-
   return {
     total: agg.total,
     decTotal: agg.decTotal,
@@ -143,8 +132,8 @@ export function getMetrics(P: PeriodHours, params: RuleParams = DEFAULT_RULE_PAR
     peakLabel: peak.label,
     profile: profile.kind,
     profileLabel: profile.label,
-    status,
-    priorityScore,
+    status: { kind: 'normal' as StatusKind, label: 'Нормальная нагрузка' },
+    priorityScore: 0,
   }
 }
 
