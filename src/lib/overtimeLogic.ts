@@ -76,14 +76,14 @@ function median(sorted: number[]): number {
 
 function getRelativeStatus(total: number, medianValue: number, bandPercent: number): StatusResult {
   if (medianValue === 0) {
-    if (total === 0) return { kind: 'normal', label: 'Нормальная нагрузка' }
-    return { kind: 'overload_rest', label: 'Срочно отдыхать' }
+    if (total === 0) return { kind: 'normal', label: 'В норме' }
+    return { kind: 'overload_rest', label: 'Выше нормы' }
   }
   const low = medianValue * (1 - bandPercent)
   const high = medianValue * (1 + bandPercent)
-  if (total > high) return { kind: 'overload_rest', label: 'Срочно отдыхать' }
-  if (total < low) return { kind: 'underload_work', label: 'Срочно работать' }
-  return { kind: 'normal', label: 'Нормальная нагрузка' }
+  if (total > high) return { kind: 'overload_rest', label: 'Выше нормы' }
+  if (total < low) return { kind: 'underload_work', label: 'Ниже нормы' }
+  return { kind: 'normal', label: 'В норме' }
 }
 
 /**

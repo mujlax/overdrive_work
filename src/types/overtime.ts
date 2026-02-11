@@ -73,14 +73,33 @@ export interface OvertimeMetrics {
   priorityScore: number
 }
 
+/** Дни по месяцам: 31 дек + 31 янв + 28 фев = 90 */
+export const DAYS_PER_MONTH = [31, 31, 28] as const
+export const TOTAL_DAYS = 90
+
+export type PeriodMode = 'days' | 'weeks' | 'months'
+
 export interface SpecialistRaw {
   id: string
   name: string
   department: string
   skill: string
   periods: PeriodHours
+  /** Опционально: часы по календарным дням (90 чисел). Если нет — выводятся из periods. */
+  days?: number[]
 }
 
 export interface SpecialistWithMetrics extends SpecialistRaw {
   metrics: OvertimeMetrics
 }
+
+/** Подпись для дня по индексу 0..89: «Дек 1», «Янв 15», «Фев 28» */
+export function getDayLabel(index: number): string {
+  const [decDays, janDays] = DAYS_PER_MONTH
+  if (index < decDays) return `Дек ${index + 1}`
+  if (index < decDays + janDays) return `Янв ${index - decDays + 1}`
+  return `Фев ${index - decDays - janDays + 1}`
+}
+
+/** Массив подписей для всех 90 дней */
+export const DAY_LABELS: readonly string[] = Array.from({ length: TOTAL_DAYS }, (_, i) => getDayLabel(i))

@@ -1,8 +1,10 @@
-import { Filter, ArrowUpDown } from 'lucide-react'
+import { Filter, ArrowUpDown, PlayCircle } from 'lucide-react'
+import { runDemoTour } from '../lib/demoTour'
 
 export function Header() {
   return (
     <header
+      data-tour="header"
       style={{
         padding: '1.5rem 2rem',
         borderBottom: '1px solid var(--border)',
@@ -43,6 +45,27 @@ export function Header() {
         </ul>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <button
+          type="button"
+          onClick={() => runDemoTour()}
+          className="header-demo-btn"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            background: 'var(--accent)',
+            border: '1px solid rgba(59, 130, 246, 0.5)',
+            borderRadius: 'var(--radius)',
+            color: '#fff',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            boxShadow: '0 0 0 0 rgba(59, 130, 246, 0.4)',
+          }}
+        >
+          <PlayCircle size={16} />
+          Демо
+        </button>
         <button
           type="button"
           style={{

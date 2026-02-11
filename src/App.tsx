@@ -1,12 +1,15 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Header } from './components/Header'
 import { SummaryCards } from './components/SummaryCards'
 import { FiltersBar, type FilterState } from './components/FiltersBar'
 import { ViewTabs } from './components/ViewTabs'
+import { PeriodModeTabs } from './components/PeriodModeTabs'
 import { SpecialistsTable } from './components/SpecialistsTable'
 import { ChartView } from './components/ChartView'
 import { useFilteredSpecialists } from './hooks/useFilteredSpecialists'
-import { mockSpecialistsWithMetrics } from './data/mockSpecialists'
+import { mockSpecialistsEqualTotalsWithMetrics } from './data/mockSpecialistsEqualTotals'
+import { runDemoTour, TOUR_DONE_KEY } from './lib/demoTour'
+import type { PeriodMode } from './types/overtime'
 
 const defaultFilters: FilterState = {
   search: '',
@@ -16,26 +19,33 @@ const defaultFilters: FilterState = {
 }
 
 const statusOptions = [
-  { value: 'overload_rest', label: 'Срочно отдыхать' },
-  { value: 'normal', label: 'Нормальная нагрузка' },
-  { value: 'underload_work', label: 'Срочно работать' },
+  { value: 'overload_rest', label: 'Выше нормы' },
+  { value: 'normal', label: 'В норме' },
+  { value: 'underload_work', label: 'Ниже нормы' },
 ]
 
 export default function App() {
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
   const [view, setView] = useState<'table' | 'chart'>('table')
+  const [periodMode, setPeriodMode] = useState<PeriodMode>('weeks')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  const filtered = useFilteredSpecialists(mockSpecialistsWithMetrics, filters)
+  const filtered = useFilteredSpecialists(mockSpecialistsEqualTotalsWithMetrics, filters)
 
   const departments = useMemo(() => {
-    const set = new Set(mockSpecialistsWithMetrics.map((s) => s.department))
+    const set = new Set(mockSpecialistsEqualTotalsWithMetrics.map((s) => s.department))
     return Array.from(set).sort()
   }, [])
 
   const skills = useMemo(() => {
-    const set = new Set(mockSpecialistsWithMetrics.map((s) => s.skill))
+    const set = new Set(mockSpecialistsEqualTotalsWithMetrics.map((s) => s.skill))
     return Array.from(set).sort()
+  }, [])
+
+  useEffect(() => {
+    if (localStorage.getItem(TOUR_DONE_KEY)) return
+    const t = setTimeout(() => runDemoTour(), 400)
+    return () => clearTimeout(t)
   }, [])
 
   return (
@@ -49,17 +59,26 @@ export default function App() {
         skills={skills}
         statusOptions={statusOptions}
       />
-      <ViewTabs view={view} onViewChange={setView} />
-      {view === 'table' ? (
-        <SpecialistsTable
-          specialists={filtered}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-        />
-      ) : (
-        <ChartView specialists={filtered} />
-      )}
+      <div data-tour="view-tabs">
+        <ViewTabs view={view} onViewChange={setView} />
+      </div>
+      <div data-tour="period-tabs">
+        <PeriodModeTabs periodMode={periodMode} onPeriodModeChange={setPeriodMode} />
+      </div>
+      <div data-tour="main-content">
+        {view === 'table' ? (
+          <SpecialistsTable
+            specialists={filtered}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            periodMode={periodMode}
+          />
+        ) : (
+          <ChartView specialists={filtered} periodMode={periodMode} />
+        )}
+      </div>
       <footer
+        data-tour="footer"
         style={{
           marginTop: 'auto',
           padding: '1rem 2rem',
@@ -74,7 +93,7 @@ export default function App() {
         }}
       >
         <span>
-          Статусы: относительно медианы по текущей выборке (норма ±20%). Сортировка: сначала перегруженные, затем недогруженные.
+          Статусы: относительно медианы по текущей выборке (норма ±20%). Сортировка: сначала выше нормы, затем ниже нормы.
         </span>
         <span>Weekly UI v1</span>
       </footer>

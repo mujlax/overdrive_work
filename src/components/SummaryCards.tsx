@@ -14,12 +14,13 @@ export function SummaryCards({ specialists }: SummaryCardsProps) {
   const cards = [
     { label: 'Всего переработок', value: `${totalHours} ч`, icon: Clock },
     { label: 'С переработками', value: String(withOvertime), icon: Users },
-    { label: 'Срочно отдыхать', value: String(overloadRest), icon: AlertCircle },
-    { label: 'Срочно работать', value: String(underloadWork), icon: Briefcase },
+    { label: 'Выше нормы', value: String(overloadRest), icon: AlertCircle },
+    { label: 'Ниже нормы', value: String(underloadWork), icon: Briefcase },
   ]
 
   return (
     <div
+      data-tour="summary"
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',

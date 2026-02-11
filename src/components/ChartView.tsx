@@ -8,11 +8,13 @@ import {
   Legend,
   CartesianGrid,
 } from 'recharts'
-import { PERIOD_LABELS } from '../types/overtime'
+import { getPeriodConfig } from '../lib/periodData'
 import type { SpecialistWithMetrics } from '../types/overtime'
+import type { PeriodMode } from '../types/overtime'
 
 interface ChartViewProps {
   specialists: SpecialistWithMetrics[]
+  periodMode: PeriodMode
 }
 
 const COLORS = [
@@ -24,11 +26,18 @@ const COLORS = [
   '#06b6d4',
 ]
 
-export function ChartView({ specialists }: ChartViewProps) {
-  const data = PERIOD_LABELS.map((label, i) => {
+const MODE_LABELS: Record<PeriodMode, string> = {
+  days: 'по дням',
+  weeks: 'по неделям',
+  months: 'по месяцам',
+}
+
+export function ChartView({ specialists, periodMode }: ChartViewProps) {
+  const config = getPeriodConfig(periodMode)
+  const data = config.labels.map((label, i) => {
     const point: Record<string, string | number> = { period: label }
     specialists.forEach((s) => {
-      point[s.name] = s.periods[i]
+      point[s.name] = config.getValues(s)[i]
     })
     return point
   })
@@ -36,7 +45,7 @@ export function ChartView({ specialists }: ChartViewProps) {
   return (
     <div style={{ padding: '1rem 2rem', height: 420 }}>
       <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-        Часы переработок по неделям (время — по оси X, часы — по оси Y)
+        Часы переработок {MODE_LABELS[periodMode]} (время — по оси X, часы — по оси Y)
       </div>
       {specialists.length > 0 && data.length > 0 ? (
         <ResponsiveContainer width="100%" height={380}>
@@ -44,8 +53,9 @@ export function ChartView({ specialists }: ChartViewProps) {
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="period"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: periodMode === 'days' ? 9 : 11 }}
               stroke="var(--border)"
+              interval={periodMode === 'days' ? 9 : 0}
             />
             <YAxis
               tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
@@ -59,8 +69,8 @@ export function ChartView({ specialists }: ChartViewProps) {
                 borderRadius: 'var(--radius)',
                 color: 'var(--text)',
               }}
-              labelFormatter={(label) => `Неделя: ${label}`}
-              formatter={(value: number, name: string) => [`${value} ч`, name]}
+              labelFormatter={(label) => `${periodMode === 'days' ? 'День' : periodMode === 'weeks' ? 'Неделя' : 'Месяц'}: ${label}`}
+              formatter={(value: number, name: string) => [`${Number(value).toFixed(1)} ч`, name]}
               labelStyle={{ color: 'var(--text-muted)' }}
             />
             <Legend
@@ -74,7 +84,7 @@ export function ChartView({ specialists }: ChartViewProps) {
                 dataKey={s.name}
                 stroke={COLORS[idx % COLORS.length]}
                 strokeWidth={2}
-                dot={{ r: 3, fill: COLORS[idx % COLORS.length] }}
+                dot={periodMode === 'days' ? false : { r: 3, fill: COLORS[idx % COLORS.length] }}
                 activeDot={{ r: 5 }}
                 name={s.name}
               />

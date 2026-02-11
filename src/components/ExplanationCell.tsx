@@ -13,7 +13,7 @@ const profileTagStyle: Record<string, { bg: string; color: string }> = {
   none: { bg: 'transparent', color: 'var(--text-muted)' },
 }
 
-const iconSize = 12
+const iconSize = 14
 
 export function ExplanationCell({ metrics }: ExplanationCellProps) {
   const style = profileTagStyle[metrics.profile] ?? profileTagStyle.none
@@ -23,9 +23,8 @@ export function ExplanationCell({ metrics }: ExplanationCellProps) {
         fontSize: '0.75rem',
         color: 'var(--text-muted)',
         display: 'flex',
-        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: '0.5rem 0.75rem',
+        gap: '0.5rem',
       }}
     >
       <span
@@ -35,21 +34,21 @@ export function ExplanationCell({ metrics }: ExplanationCellProps) {
           backgroundColor: style.bg,
           color: style.color,
           fontSize: '0.7rem',
+          lineHeight: 1,
         }}
       >
         {metrics.profileLabel}
       </span>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+      <span title={metrics.lastWorkedLabel ?? 'Последняя переработка'} style={{ display: 'inline-flex' }}>
         <Calendar size={iconSize} aria-hidden />
-        {metrics.lastWorkedLabel ?? '—'}
       </span>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+      <span title={`Пик: ${metrics.peakLabel} (${metrics.peakValue}ч)`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
         <TrendingUp size={iconSize} aria-hidden />
-        {metrics.peakLabel} ({metrics.peakValue}ч)
+        <span>{metrics.peakValue}ч</span>
       </span>
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+      <span title={`Февраль: ${metrics.febTotal}ч`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
         <Flame size={iconSize} aria-hidden />
-        {metrics.febTotal}ч
+        <span>{metrics.febTotal}ч</span>
       </span>
     </div>
   )

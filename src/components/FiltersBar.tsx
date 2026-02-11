@@ -37,6 +37,7 @@ export function FiltersBar({
 
   return (
     <div
+      data-tour="filters"
       style={{
         padding: '1rem 2rem',
         borderBottom: '1px solid var(--border)',
